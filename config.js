@@ -1,19 +1,19 @@
 window.WEDDING = {
   // --- The couple & the day -------------------------------------------
-  couple:        "Alex & Jordan",
-  date:          "2027-04-17",            // YYYY-MM-DD
-  dateDisplay:   "Saturday, 17 April 2027",
-  ceremonyTime:  "15:00",
+  couple:        "Kelly & Matthys",
+  date:          "2027-03-13",            // YYYY-MM-DD
+  dateDisplay:   "Saturday, 13 March 2027",
+  ceremonyTime:  "16:00",
   receptionTime: "Reception to follow",
-  venueName:     "The Venue Name",
-  venueAddress:  "123 Example Road, Stellenbosch, 7600",
-  mapsUrl:       "https://maps.google.com/?q=Stellenbosch",
-  dressCode:     "Garden formal",
-  rsvpDeadline:  "2027-02-28",             // YYYY-MM-DD — form closes after this day
-  rsvpDeadlineDisplay: "28 February 2027",
-  contactName:   "Alex",
-  contactPhone:  "+27 82 000 0000",
-  extraNote:     "Kindly note that the venue is a short drive outside town — shuttle details to follow.",
+  venueName:     "Mokopane, Limpopo",
+  venueAddress:  "Exact venue to be confirmed",
+  mapsUrl:       "https://maps.google.com/?q=Mokopane,Limpopo",
+  dressCode:     "Smart casual",
+  rsvpDeadline:  "2027-01-31",             // YYYY-MM-DD — form closes after this day
+  rsvpDeadlineDisplay: "31 January 2027",
+  contactName:   "Matthys on 076 830 8012 or Kelly",
+  contactPhone:  "061 838 6506",
+  extraNote:     "Full venue details will follow closer to the day.",
 
   // --- Supabase --------------------------------------------------------
   supabaseUrl:   "https://dabkzreqjfhvlwhamwsc.supabase.co",
