@@ -4,7 +4,7 @@ window.WEDDING = {
   date:          "2027-03-13",            // YYYY-MM-DD
   dateDisplay:   "Saturday, 13 March 2027",
   ceremonyTime:  "16:00",
-  receptionTime: "Reception to follow",
+  receptionTime: "Reception from 16:00",
   venueName:     "Mokopane, Limpopo",
   venueAddress:  "Exact venue to be confirmed",
   mapsUrl:       "https://maps.google.com/?q=Mokopane,Limpopo",
