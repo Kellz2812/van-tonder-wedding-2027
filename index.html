@@ -167,7 +167,7 @@ function show(id) {
 function loadSupabase() {
   return new Promise((resolve, reject) => {
     const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js';
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js';
     s.onload = () => resolve(window.supabase.createClient(W.supabaseUrl, W.supabaseKey));
     s.onerror = reject;
     document.head.appendChild(s);
