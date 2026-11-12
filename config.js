@@ -1,8 +1,3 @@
-// =====================================================================
-//  Wedding details + Supabase connection.
-//  This is the ONLY file you need to edit. Everything else reads from it.
-// =====================================================================
-
 window.WEDDING = {
   // --- The couple & the day -------------------------------------------
   couple:        "Alex & Jordan",
@@ -17,11 +12,10 @@ window.WEDDING = {
   rsvpDeadline:  "2027-02-28",             // YYYY-MM-DD — form closes after this day
   rsvpDeadlineDisplay: "28 February 2027",
   contactName:   "Alex",
-  contactPhone:  "+27 82 000 0000",        // shown if guests have trouble
+  contactPhone:  "+27 82 000 0000",
   extraNote:     "Kindly note that the venue is a short drive outside town — shuttle details to follow.",
 
-  // --- Supabase (Project Settings → API) ------------------------------
-  // Leave both empty to run in demo mode with sample guests.
-  supabaseUrl:   "",                       // e.g. "https://abcdxyz.supabase.co"
-  supabaseKey:   "",                       // the "anon public" / publishable key — NEVER the service_role / secret key
+  // --- Supabase --------------------------------------------------------
+  supabaseUrl:   "https://dabkzreqjfhvlwhamwsc.supabase.co",
+  supabaseKey:   "sb_publishable_hCAiIRjulLUyBpxyPaQR8Q_w1Gf-ssQ",
 };
