@@ -1,7 +1,7 @@
 window.WEDDING = {
   // --- The couple & the day -------------------------------------------
   couple:        "Kelly & Matthys",
-  verse:         "Where the bushveld meets the ancient Waterberg hills, and lanterns glow beneath a sky full of stars, two hearts have chosen one another — now and for all the ages.",
+  verse:         "Let's make it official!",
   date:          "2027-03-13",            // YYYY-MM-DD
   dateDisplay:   "Saturday, 13 March 2027",
   ceremonyTime:  "16:00",
