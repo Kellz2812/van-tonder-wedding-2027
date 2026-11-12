@@ -13,7 +13,7 @@ window.WEDDING = {
   rsvpDeadlineDisplay: "31 January 2027",
   contactName:   "Matthys on 076 830 8012 or Kelly",
   contactPhone:  "061 838 6506",
-  extraNote:     "Full venue details will follow closer to the day.",
+  extraNote:     "We're saying our vows in a small private ceremony the weekend before — and we'd love for you to celebrate with us at the reception!",
 
   // --- Supabase --------------------------------------------------------
   supabaseUrl:   "https://dabkzreqjfhvlwhamwsc.supabase.co",
