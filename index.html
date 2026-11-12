@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RSVP</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">Together with their families</div>
+  <h1 id="couple"></h1>
+  <div class="date" id="heroDate"></div>
+  <div class="divider"></div>
+  <div class="eyebrow" id="heroVenue"></div>
+</header>
+
+<main class="wrap">
+  <section class="details">
+    <div class="detail"><div class="label">When</div><div class="value" id="dWhen"></div><div class="sub" id="dTime"></div></div>
+    <div class="detail"><div class="label">Dress code</div><div class="value" id="dDress"></div></div>
+    <div class="detail wide"><div class="label">Where</div><div class="value" id="dVenue"></div><div class="sub" id="dAddress"></div>
+      <div class="sub" style="margin-top:6px"><a id="dMap" target="_blank" rel="noopener">Open in Google Maps →</a></div></div>
+    <div class="detail wide"><div class="label">Kindly reply by</div><div class="value" id="dDeadline"></div></div>
+  </section>
+  <p class="note" id="extraNote"></p>
+
+  <!-- RSVP card: one of these states is shown -->
+  <section class="card" id="rsvp">
+    <div id="stLoading" class="center"><p class="lead">Finding your invitation…</p></div>
+
+    <div id="stNoCode" class="hidden center">
+      <h2>RSVP</h2>
+      <p class="lead">Please use the personal link from your invitation to reply.</p>
+      <p class="hint">Can't find it? Contact <span class="contact"></span>.</p>
+    </div>
+
+    <div id="stNotFound" class="hidden center">
+      <h2>Hmm…</h2>
+      <p class="lead">We couldn't find that invitation. Please check the link, or contact <span class="contact"></span>.</p>
+    </div>
+
+    <div id="stClosed" class="hidden center">
+      <h2>RSVPs are closed</h2>
+      <p class="lead">The RSVP deadline has passed. If something has changed, please contact <span class="contact"></span>.</p>
+      <div id="closedSummary"></div>
+    </div>
+
+    <div id="stThanks" class="hidden center thanks">
+      <h2 id="thanksTitle">Thank you!</h2>
+      <p class="big" id="thanksLine"></p>
+      <p class="lead" id="thanksSub"></p>
+      <button class="btn ghost small" id="editBtn" type="button">Change my response</button>
+    </div>
+
+    <form id="stForm" class="hidden" novalidate>
+      <h2>Dear <span id="household"></span></h2>
+      <p class="lead" id="seatsLine"></p>
+      <div id="prevBanner" class="banner hidden"></div>
+
+      <fieldset>
+        <legend>Will you be joining us?</legend>
+        <div class="choice">
+          <label><input type="radio" name="attending" value="yes"><span>Joyfully accept</span></label>
+          <label><input type="radio" name="attending" value="no"><span>Regretfully decline</span></label>
+        </div>
+      </fieldset>
+
+      <div id="yesBlock" class="hidden">
+        <fieldset id="namesSet">
+          <legend>Who will be attending? <span class="hint">(tick everyone coming)</span></legend>
+          <div class="checks" id="nameChecks"></div>
+        </fieldset>
+
+        <fieldset id="plusOneSet" class="hidden">
+          <legend>Bringing a plus-one?</legend>
+          <div class="checks"><label><input type="checkbox" id="plusOneChk"> Yes, I'll bring a guest</label></div>
+          <div class="field hidden" id="plusOneField">
+            <label for="plusOneName">Your guest's full name</label>
+            <input type="text" id="plusOneName" maxlength="120" autocomplete="off">
+          </div>
+        </fieldset>
+
+        <fieldset id="kidsSet" class="hidden">
+          <legend>Will you be bringing kids?</legend>
+          <div class="choice">
+            <label><input type="radio" name="kids" value="yes"><span>Yes</span></label>
+            <label><input type="radio" name="kids" value="no"><span>No</span></label>
+          </div>
+          <div id="kidsBlock" class="hidden" style="margin-top:14px">
+            <div class="row2">
+              <div class="field"><label for="kidsUnder">Kids under 10</label><input type="number" id="kidsUnder" min="0" max="20" value="0" inputmode="numeric"></div>
+              <div class="field"><label for="kidsOver">Kids 10 and older</label><input type="number" id="kidsOver" min="0" max="20" value="0" inputmode="numeric"></div>
+            </div>
+            <div class="field"><label for="kidsNames">Kids' names (and ages)</label>
+              <input type="text" id="kidsNames" maxlength="500" placeholder="e.g. Mia (6), Leo (12)"></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Dietary requirements or allergies <span class="hint">(optional)</span></legend>
+          <textarea id="dietary" maxlength="1000" placeholder="e.g. Vegetarian, nut allergy for Leo"></textarea>
+        </fieldset>
+
+        <fieldset>
+          <legend>Request a song <span class="hint">(optional)</span></legend>
+          <input type="text" id="song" maxlength="300" placeholder="What will get you on the dance floor?">
+        </fieldset>
+      </div>
+
+      <fieldset id="msgSet" class="hidden">
+        <legend>A message for the couple <span class="hint">(optional)</span></legend>
+        <textarea id="message" maxlength="2000"></textarea>
+      </fieldset>
+
+      <button class="btn" type="submit" id="submitBtn">Send RSVP</button>
+      <div class="error hidden" id="formError"></div>
+    </form>
+  </section>
+</main>
+
+<footer>Questions? Contact <span class="contact"></span></footer>
+<div class="demo-tag hidden" id="demoTag">Demo mode</div>
+
+<script>
+const W = window.WEDDING;
+const DEMO = !W.supabaseUrl || !W.supabaseKey;
+const $ = id => document.getElementById(id);
+
+// ---------- demo data (used only when Supabase isn't configured) ----------
+const DEMO_INVITES = {
+  DEMO1: { code: 'DEMO1', household_name: 'Thabo & Lerato', guest_names: ['Thabo Mokoena', 'Lerato Mokoena'], plus_one_allowed: false, kids_allowed: true, rsvp: null },
+  DEMO2: { code: 'DEMO2', household_name: 'Sarah', guest_names: ['Sarah van der Merwe'], plus_one_allowed: true, kids_allowed: false, rsvp: null },
+};
+
+// ---------- fill in wedding details ----------
+document.title = `${W.couple} — RSVP`;
+$('couple').textContent = W.couple;
+$('heroDate').textContent = W.dateDisplay;
+$('heroVenue').textContent = W.venueName;
+$('dWhen').textContent = W.dateDisplay;
+$('dTime').textContent = `Ceremony at ${W.ceremonyTime} · ${W.receptionTime}`;
+$('dDress').textContent = W.dressCode;
+$('dVenue').textContent = W.venueName;
+$('dAddress').textContent = W.venueAddress;
+$('dMap').href = W.mapsUrl;
+$('dDeadline').textContent = W.rsvpDeadlineDisplay;
+$('extraNote').textContent = W.extraNote || '';
+document.querySelectorAll('.contact').forEach(el => el.textContent = `${W.contactName} on ${W.contactPhone}`);
+if (DEMO) $('demoTag').classList.remove('hidden');
+
+const closed = new Date() > new Date(W.rsvpDeadline + 'T23:59:59');
+let invite = null;
+let sb = null;
+
+function show(id) {
+  ['stLoading','stNoCode','stNotFound','stClosed','stThanks','stForm'].forEach(s => $(s).classList.toggle('hidden', s !== id));
+}
+
+function loadSupabase() {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js';
+    s.onload = () => resolve(window.supabase.createClient(W.supabaseUrl, W.supabaseKey));
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function api(fn, args) {
+  if (DEMO) {
+    await new Promise(r => setTimeout(r, 300));
+    if (fn === 'get_invite') return DEMO_INVITES[(args.p_code || '').toUpperCase()] || null;
+    const inv = DEMO_INVITES[args.p_code.toUpperCase()];
+    inv.rsvp = {
+      attending: args.p_attending, attending_names: args.p_attending_names, plus_one_name: args.p_plus_one_name,
+      bringing_kids: args.p_bringing_kids, kids_under_10: args.p_kids_under_10, kids_10_plus: args.p_kids_10_plus,
+      kids_names: args.p_kids_names, dietary: args.p_dietary, song_request: args.p_song_request,
+      message: args.p_message, updated_at: new Date().toISOString(),
+    };
+    return inv;
+  }
+  const { data, error } = await sb.rpc(fn, args);
+  if (error) throw error;
+  return data;
+}
+
+// ---------- form behaviour ----------
+const val = name => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
+
+function refreshForm() {
+  const att = val('attending');
+  $('yesBlock').classList.toggle('hidden', att !== 'yes');
+  $('msgSet').classList.toggle('hidden', !att);
+  $('plusOneField').classList.toggle('hidden', !$('plusOneChk').checked);
+  $('kidsBlock').classList.toggle('hidden', val('kids') !== 'yes');
+}
+document.querySelectorAll('#stForm input').forEach(el => el.addEventListener('change', refreshForm));
+
+function renderForm() {
+  const r = invite.rsvp;
+  $('household').textContent = invite.household_name;
+  const seats = invite.guest_names.length;
+  $('seatsLine').textContent = invite.plus_one_allowed
+    ? `We'd love for you to celebrate with us — you're welcome to bring a guest.`
+    : `We have reserved ${seats} ${seats === 1 ? 'seat' : 'seats'} in your honour.`;
+
+  // name checkboxes
+  const box = $('nameChecks');
+  box.innerHTML = '';
+  invite.guest_names.forEach(n => {
+    const lab = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = n;
+    cb.checked = r ? (r.attending_names || []).includes(n) : true;
+    lab.append(cb, document.createTextNode(' ' + n));
+    box.appendChild(lab);
+  });
+  $('namesSet').classList.toggle('hidden', seats <= 1 && !r);
+  $('plusOneSet').classList.toggle('hidden', !invite.plus_one_allowed);
+  $('kidsSet').classList.toggle('hidden', !invite.kids_allowed);
+
+  if (r) {
+    document.querySelector(`input[name=attending][value=${r.attending ? 'yes' : 'no'}]`).checked = true;
+    $('plusOneChk').checked = !!r.plus_one_name;
+    $('plusOneName').value = r.plus_one_name || '';
+    if (invite.kids_allowed && r.attending) document.querySelector(`input[name=kids][value=${r.bringing_kids ? 'yes' : 'no'}]`).checked = true;
+    $('kidsUnder').value = r.kids_under_10 || 0;
+    $('kidsOver').value = r.kids_10_plus || 0;
+    $('kidsNames').value = r.kids_names || '';
+    $('dietary').value = r.dietary || '';
+    $('song').value = r.song_request || '';
+    $('message').value = r.message || '';
+    $('prevBanner').textContent = `You replied on ${new Date(r.updated_at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long' })}. You can update your response below.`;
+    $('prevBanner').classList.remove('hidden');
+  }
+  refreshForm();
+  show('stForm');
+}
+
+function summary(r) {
+  if (!r.attending) return { title: 'Thank you for letting us know', line: "We'll miss you!", sub: 'Thank you for your kind reply.' };
+  let people = (r.attending_names || []).length + (r.plus_one_name ? 1 : 0);
+  if (!invite.guest_names.length) people = 1;
+  const kids = (r.kids_under_10 || 0) + (r.kids_10_plus || 0);
+  let line = `${people} ${people === 1 ? 'adult' : 'adults'}`;
+  if (kids) line += ` and ${kids} ${kids === 1 ? 'child' : 'children'}`;
+  return { title: 'Thank you!', line: `We can't wait to celebrate with you.`, sub: `We've noted ${line}. See you on ${W.dateDisplay}!` };
+}
+
+function renderThanks() {
+  const s = summary(invite.rsvp);
+  $('thanksTitle').textContent = s.title;
+  $('thanksLine').textContent = s.line;
+  $('thanksSub').textContent = s.sub;
+  $('editBtn').classList.toggle('hidden', closed);
+  show('stThanks');
+}
+$('editBtn').onclick = renderForm;
+
+function showError(msg) { $('formError').textContent = msg; $('formError').classList.remove('hidden'); }
+
+$('stForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('formError').classList.add('hidden');
+  const att = val('attending');
+  if (!att) return showError('Please let us know whether you can make it.');
+  const names = [...document.querySelectorAll('#nameChecks input:checked')].map(c => c.value);
+  const plusOne = invite.plus_one_allowed && $('plusOneChk').checked ? $('plusOneName').value.trim() : '';
+  const kids = invite.kids_allowed && val('kids') === 'yes';
+  const kU = parseInt($('kidsUnder').value, 10) || 0, kO = parseInt($('kidsOver').value, 10) || 0;
+
+  if (att === 'yes') {
+    if (invite.guest_names.length && !names.length) return showError('Please tick at least one person who will attend.');
+    if ($('plusOneChk').checked && !plusOne) return showError("Please add your guest's name.");
+    if (invite.kids_allowed && !val('kids')) return showError('Please let us know if you will be bringing kids.');
+    if (kids && kU + kO === 0) return showError('Please enter how many kids are coming.');
+    if (kU < 0 || kO < 0 || kU > 20 || kO > 20) return showError('Please check the number of kids.');
+  }
+
+  $('submitBtn').disabled = true; $('submitBtn').textContent = 'Sending…';
+  try {
+    invite = await api('submit_rsvp', {
+      p_code: invite.code, p_attending: att === 'yes', p_attending_names: names,
+      p_plus_one_name: plusOne || null, p_bringing_kids: kids,
+      p_kids_under_10: kids ? kU : 0, p_kids_10_plus: kids ? kO : 0,
+      p_kids_names: kids ? $('kidsNames').value.trim() : null,
+      p_dietary: att === 'yes' ? $('dietary').value.trim() : null,
+      p_song_request: att === 'yes' ? $('song').value.trim() : null,
+      p_message: $('message').value.trim(),
+    });
+    renderThanks();
+    $('rsvp').scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    console.error(err);
+    showError(`Sorry, something went wrong. Please try again, or contact ${W.contactName}.`);
+  } finally {
+    $('submitBtn').disabled = false; $('submitBtn').textContent = 'Send RSVP';
+  }
+});
+
+// ---------- start ----------
+(async () => {
+  const params = new URLSearchParams(location.search);
+  const code = (params.get('i') || params.get('code') || '').trim();
+  if (!code) return show('stNoCode');
+  try {
+    if (!DEMO) sb = await loadSupabase();
+    invite = await api('get_invite', { p_code: code });
+  } catch (err) { console.error(err); }
+  if (!invite) return show('stNotFound');
+  if (closed) {
+    if (invite.rsvp) {
+      const s = summary(invite.rsvp);
+      $('closedSummary').innerHTML = '';
+      const p = document.createElement('p'); p.className = 'hint';
+      p.textContent = `Your response on file: ${invite.rsvp.attending ? 'Attending — ' + s.sub : 'Not attending'}`;
+      $('closedSummary').appendChild(p);
+    }
+    return show('stClosed');
+  }
+  invite.rsvp ? renderThanks() : renderForm();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RSVP Admin</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+<style>
+  .wrap { max-width: 1100px; }
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 22px 0; flex-wrap: wrap; }
+  .top h1 { font-size: 32px; }
+  .top .who { font-size: 13px; color: var(--muted); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 22px; }
+  .stat { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  .stat .n { font-family: var(--serif); font-size: 34px; line-height: 1; }
+  .stat .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; margin-top: 6px; }
+  .stat.hl { border-color: var(--accent); background: rgba(138,154,123,.08); }
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-bottom: 18px; }
+  .panel h2 { font-size: 24px; margin-bottom: 12px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tab { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 7px 14px; cursor: pointer; font: 14px var(--sans); }
+  .tab.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .toolbar input { flex: 1; min-width: 180px; }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-weight: 500; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td .sub { color: var(--muted); font-size: 13px; }
+  .chip { display: inline-block; font-size: 12px; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .chip.yes { background: #e5eddf; color: #46573b; }
+  .chip.no { background: #f4e1de; color: #8e3d34; }
+  .chip.pending { background: #f3ecdd; color: #84693a; }
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mini { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 8px; padding: 5px 9px; font: 13px var(--sans); cursor: pointer; white-space: nowrap; }
+  .mini:hover { border-color: var(--accent); }
+  .mini.danger { color: var(--danger); }
+  .formgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .inline-checks { display: flex; gap: 16px; flex-wrap: wrap; margin: 6px 0 12px; font-size: 15px; }
+  .inline-checks label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  .list { margin: 0; padding: 0; list-style: none; }
+  .list li { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .list li b { font-weight: 500; }
+  .login { max-width: 420px; margin: 12vh auto; }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 14px; z-index: 9; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 700px) { .formgrid, .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Login -->
+  <section id="login" class="card login hidden">
+    <h2>RSVP admin</h2>
+    <p class="lead" id="loginLead">Enter your email and we'll send you a sign-in link.</p>
+    <div class="field"><input type="email" id="email" placeholder="you@example.com" autocomplete="email"></div>
+    <button class="btn" id="loginBtn">Email me a sign-in link</button>
+    <div class="error hidden" id="loginMsg"></div>
+  </section>
+
+  <!-- Dashboard -->
+  <section id="app" class="hidden">
+    <div class="top">
+      <div><h1 id="title">Guest list</h1><div class="who" id="who"></div></div>
+      <div class="actions">
+        <button class="mini" id="refreshBtn">Refresh</button>
+        <button class="mini" id="csvBtn">Export CSV</button>
+        <button class="mini" id="logoutBtn">Sign out</button>
+      </div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="panel">
+      <div class="tabs" id="tabs">
+        <button class="tab on" data-f="all">All</button>
+        <button class="tab" data-f="yes">Attending</button>
+        <button class="tab" data-f="no">Declined</button>
+        <button class="tab" data-f="pending">No reply yet</button>
+      </div>
+      <div class="toolbar"><input type="text" id="search" placeholder="Search names…"></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Invite</th><th>Status</th><th>Coming</th><th>Kids</th><th>Notes</th><th>Link</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h2>Add an invite</h2>
+        <div class="formgrid">
+          <div class="field"><label>Name on invite</label><input type="text" id="aHousehold" placeholder="e.g. Thabo & Lerato"></div>
+          <div class="field"><label>Guest full names (comma separated)</label><input type="text" id="aNames" placeholder="Thabo Mokoena, Lerato Mokoena"></div>
+        </div>
+        <div class="inline-checks">
+          <label><input type="checkbox" id="aPlus"> Plus-one allowed</label>
+          <label><input type="checkbox" id="aKids" checked> Kids welcome</label>
+        </div>
+        <button class="btn small" id="addBtn">Add invite</button>
+      </div>
+
+      <div class="panel">
+        <h2>Bulk add</h2>
+        <p class="hint" style="margin-top:-6px">One invite per line: <code>Name on invite; Guest 1, Guest 2; plus1; nokids</code><br>The last two are optional flags.</p>
+        <textarea id="bulk" placeholder="The Naidoo Family; Priya Naidoo, Kevin Naidoo
+Sarah; Sarah van der Merwe; plus1; nokids"></textarea>
+        <div style="margin-top:10px"><button class="btn small" id="bulkBtn">Add all</button></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel"><h2>Dietary &amp; allergies</h2><ul class="list" id="dietList"></ul></div>
+      <div class="panel"><h2>Song requests</h2><ul class="list" id="songList"></ul></div>
+    </div>
+    <div class="panel"><h2>Messages</h2><ul class="list" id="msgList"></ul></div>
+  </section>
+</div>
+<div class="demo-tag hidden" id="demoTag">Demo mode</div>
+
+<script>
+const W = window.WEDDING;
+const DEMO = !W.supabaseUrl || !W.supabaseKey;
+const $ = id => document.getElementById(id);
+let sb = null, invites = [], filter = 'all';
+
+// ---------- demo data ----------
+let DEMO_DATA = [
+  { id: '1', code: 'DEMO1', household_name: 'Thabo & Lerato', guest_names: ['Thabo Mokoena','Lerato Mokoena'], plus_one_allowed: false, kids_allowed: true, created_at: '2026-11-01',
+    rsvps: { attending: true, attending_names: ['Thabo Mokoena','Lerato Mokoena'], plus_one_name: null, bringing_kids: true, kids_under_10: 1, kids_10_plus: 1, kids_names: 'Mia (6), Leo (12)', dietary: 'Leo has a nut allergy', song_request: 'September — Earth, Wind & Fire', message: 'So happy for you both!', updated_at: '2026-11-05T10:00:00Z' } },
+  { id: '2', code: 'DEMO2', household_name: 'Sarah', guest_names: ['Sarah van der Merwe'], plus_one_allowed: true, kids_allowed: false, created_at: '2026-11-01', rsvps: null },
+  { id: '3', code: 'K7P2QX9M', household_name: 'Uncle Johan', guest_names: ['Johan Botha'], plus_one_allowed: false, kids_allowed: false, created_at: '2026-11-01',
+    rsvps: { attending: false, attending_names: [], message: "Sorry to miss it — I'll be overseas.", updated_at: '2026-11-07T10:00:00Z' } },
+  { id: '4', code: 'R4TZ8WNE', household_name: 'The Naidoo Family', guest_names: ['Priya Naidoo','Kevin Naidoo'], plus_one_allowed: false, kids_allowed: true, created_at: '2026-11-01',
+    rsvps: { attending: true, attending_names: ['Priya Naidoo','Kevin Naidoo'], bringing_kids: true, kids_under_10: 2, kids_10_plus: 0, kids_names: 'Anya (4), Dev (7)', dietary: 'Priya — vegetarian', song_request: 'Jerusalema', updated_at: '2026-11-08T10:00:00Z' } },
+];
+
+// ---------- helpers ----------
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const rsvpOf = i => Array.isArray(i.rsvps) ? (i.rsvps[0] || null) : (i.rsvps || null);
+const linkFor = code => `${location.origin}${location.pathname.replace(/admin\.html$/, '')}?i=${code}`;
+const status = i => { const r = rsvpOf(i); return !r ? 'pending' : r.attending ? 'yes' : 'no'; };
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+function adultsOf(i) { const r = rsvpOf(i); if (!r || !r.attending) return 0; return Math.max((r.attending_names || []).length, i.guest_names.length ? 0 : 1) + (r.plus_one_name ? 1 : 0); }
+
+function loadSupabase() {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js';
+    s.onload = () => resolve(window.supabase.createClient(W.supabaseUrl, W.supabaseKey));
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+// ---------- data ----------
+async function fetchAll() {
+  if (DEMO) { invites = structuredClone(DEMO_DATA); return render(); }
+  const { data, error } = await sb.from('invites').select('*, rsvps(*)').order('household_name');
+  if (error) { console.error(error); return toast('Could not load guest list'); }
+  invites = data; render();
+}
+
+async function addInvites(rows) {
+  rows = rows.filter(r => r.household_name);
+  if (!rows.length) return toast('Nothing to add');
+  if (DEMO) {
+    rows.forEach(r => DEMO_DATA.push({ ...r, id: crypto.randomUUID(), code: Math.random().toString(36).slice(2, 10).toUpperCase(), created_at: new Date().toISOString(), rsvps: null }));
+  } else {
+    const { error } = await sb.from('invites').insert(rows);
+    if (error) { console.error(error); return toast('Could not add: ' + error.message); }
+  }
+  toast(`Added ${rows.length} invite${rows.length > 1 ? 's' : ''}`);
+  fetchAll();
+}
+
+async function deleteInvite(id, name) {
+  if (!confirm(`Delete the invite for ${name}? Their RSVP will be deleted too.`)) return;
+  if (DEMO) DEMO_DATA = DEMO_DATA.filter(i => i.id !== id);
+  else { const { error } = await sb.from('invites').delete().eq('id', id); if (error) return toast(error.message); }
+  toast('Deleted'); fetchAll();
+}
+
+// ---------- render ----------
+function render() {
+  $('title').textContent = `${W.couple} — guest list`;
+  let adults = 0, under = 0, over = 0, yes = 0, no = 0, pending = 0, invited = 0;
+  invites.forEach(i => {
+    invited += i.guest_names.length || 1;
+    const r = rsvpOf(i), s = status(i);
+    if (s === 'yes') { yes++; adults += adultsOf(i); under += r.kids_under_10 || 0; over += r.kids_10_plus || 0; }
+    else if (s === 'no') no++; else pending++;
+  });
+  const stat = (n, l, hl) => `<div class="stat${hl ? ' hl' : ''}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  $('stats').innerHTML =
+    stat(adults + under + over, 'Total guests coming', true) +
+    stat(adults, 'Adults') + stat(under, 'Kids under 10') + stat(over, 'Kids 10+') +
+    stat(`${yes + no}/${invites.length}`, 'Invites replied') + stat(no, 'Declined') + stat(pending, 'No reply yet');
+
+  const q = $('search').value.trim().toLowerCase();
+  const shown = invites.filter(i => (filter === 'all' || status(i) === filter) &&
+    (!q || [i.household_name, ...i.guest_names, rsvpOf(i)?.plus_one_name || ''].join(' ').toLowerCase().includes(q)));
+
+  $('rows').innerHTML = shown.map(i => {
+    const r = rsvpOf(i), s = status(i);
+    const chip = { yes: '<span class="chip yes">Attending</span>', no: '<span class="chip no">Declined</span>', pending: '<span class="chip pending">No reply</span>' }[s];
+    const coming = s === 'yes' ? esc([...(r.attending_names || []), r.plus_one_name ? `+1 ${r.plus_one_name}` : ''].filter(Boolean).join(', ')) : '';
+    const kids = s === 'yes' && r.bringing_kids ? `${r.kids_under_10} under 10, ${r.kids_10_plus} 10+<div class="sub">${esc(r.kids_names)}</div>` : '';
+    const flags = [i.plus_one_allowed ? '+1 allowed' : '', i.kids_allowed ? '' : 'no kids'].filter(Boolean).join(' · ');
+    return `<tr>
+      <td><b>${esc(i.household_name)}</b><div class="sub">${esc(i.guest_names.join(', '))}</div>${flags ? `<div class="sub">${flags}</div>` : ''}</td>
+      <td>${chip}${r ? `<div class="sub">${new Date(r.updated_at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })}</div>` : ''}</td>
+      <td>${coming}</td>
+      <td>${kids}</td>
+      <td class="sub">${esc(r?.dietary || '')}</td>
+      <td><div class="actions">
+        <button class="mini" data-copy="${i.code}">Copy link</button>
+        <button class="mini" data-wa="${i.id}">WhatsApp</button>
+        <a class="mini" href="${linkFor(i.code)}" target="_blank" rel="noopener" style="text-decoration:none">Open</a>
+        <button class="mini danger" data-del="${i.id}">Delete</button>
+      </div><div class="sub" style="margin-top:4px">${i.code}</div></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="6" class="sub" style="padding:20px">No invites here yet.</td></tr>`;
+
+  const yesR = invites.filter(i => status(i) === 'yes');
+  const li = (who, txt) => `<li><b>${esc(who)}</b> — ${esc(txt)}</li>`;
+  $('dietList').innerHTML = yesR.filter(i => rsvpOf(i).dietary).map(i => li(i.household_name, rsvpOf(i).dietary)).join('') || '<li class="hint">None yet</li>';
+  $('songList').innerHTML = yesR.filter(i => rsvpOf(i).song_request).map(i => li(i.household_name, rsvpOf(i).song_request)).join('') || '<li class="hint">None yet</li>';
+  $('msgList').innerHTML = invites.filter(i => rsvpOf(i)?.message).map(i => li(i.household_name, rsvpOf(i).message)).join('') || '<li class="hint">None yet</li>';
+}
+
+// ---------- events ----------
+$('tabs').onclick = e => { const b = e.target.closest('.tab'); if (!b) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t === b)); filter = b.dataset.f; render(); };
+$('search').oninput = render;
+$('refreshBtn').onclick = fetchAll;
+
+$('rows').onclick = async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.copy) { await navigator.clipboard.writeText(linkFor(b.dataset.copy)); toast('Link copied'); }
+  if (b.dataset.wa) {
+    const i = invites.find(x => x.id === b.dataset.wa);
+    const first = i.household_name;
+    const text = `Hi ${first}! We'd love for you to celebrate with us on ${W.dateDisplay}. Please RSVP here by ${W.rsvpDeadlineDisplay}: ${linkFor(i.code)}`;
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+  }
+  if (b.dataset.del) { const i = invites.find(x => x.id === b.dataset.del); deleteInvite(i.id, i.household_name); }
+};
+
+const splitNames = s => s.split(',').map(x => x.trim()).filter(Boolean);
+$('addBtn').onclick = () => {
+  const household = $('aHousehold').value.trim();
+  let names = splitNames($('aNames').value);
+  if (!household) return toast('Add the name on the invite');
+  if (!names.length) names = [household];
+  addInvites([{ household_name: household, guest_names: names, plus_one_allowed: $('aPlus').checked, kids_allowed: $('aKids').checked }]);
+  $('aHousehold').value = ''; $('aNames').value = ''; $('aPlus').checked = false; $('aKids').checked = true;
+};
+$('bulkBtn').onclick = () => {
+  const rows = $('bulk').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const parts = l.split(';').map(p => p.trim());
+    const flags = parts.slice(2).map(f => f.toLowerCase());
+    const names = splitNames(parts[1] || '');
+    return { household_name: parts[0], guest_names: names.length ? names : [parts[0]],
+      plus_one_allowed: flags.includes('plus1') || flags.includes('+1'), kids_allowed: !flags.includes('nokids') };
+  });
+  addInvites(rows); $('bulk').value = '';
+};
+
+$('csvBtn').onclick = () => {
+  const head = ['Invite','Guests on invite','Status','Attending names','Plus-one','Adults','Kids under 10','Kids 10+','Kids names','Dietary','Song','Message','Replied','Link'];
+  const lines = invites.map(i => { const r = rsvpOf(i) || {};
+    return [i.household_name, i.guest_names.join(', '), status(i), (r.attending_names || []).join(', '), r.plus_one_name, adultsOf(i),
+      r.kids_under_10 || 0, r.kids_10_plus || 0, r.kids_names, r.dietary, r.song_request, r.message, r.updated_at ? r.updated_at.slice(0, 10) : '', linkFor(i.code)]; });
+  const csv = [head, ...lines].map(row => row.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
+  a.download = `rsvps-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+};
+
+// ---------- auth ----------
+$('loginBtn').onclick = async () => {
+  const email = $('email').value.trim(); if (!email) return;
+  $('loginBtn').disabled = true;
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
+  $('loginBtn').disabled = false;
+  $('loginMsg').classList.remove('hidden');
+  $('loginMsg').style.color = error ? '' : 'var(--accent-dark)';
+  $('loginMsg').textContent = error ? error.message : 'Check your inbox for the sign-in link.';
+};
+$('logoutBtn').onclick = async () => { if (!DEMO) await sb.auth.signOut(); location.reload(); };
+
+(async () => {
+  if (DEMO) {
+    $('demoTag').classList.remove('hidden'); $('who').textContent = 'Demo mode — sample data, nothing is saved';
+    $('app').classList.remove('hidden'); return fetchAll();
+  }
+  sb = await loadSupabase();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return $('login').classList.remove('hidden');
+  const { data: ok } = await sb.rpc('is_admin');
+  if (!ok) {
+    $('login').classList.remove('hidden');
+    $('loginLead').textContent = `${session.user.email} isn't on the admin list. Add it to the admins table in Supabase, or sign in with another email.`;
+    await sb.auth.signOut(); return;
+  }
+  $('who').textContent = `Signed in as ${session.user.email}`;
+  $('app').classList.remove('hidden');
+  fetchAll();
+})();
+</script>
+</body>
+</html>
