@@ -8,20 +8,51 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="theme-fantasy.css">
 <script src="config.js"></script>
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="flourish">
+      <path d="M3 83V30C3 14 14 3 30 3h53" stroke-width="1.6"/>
+      <path d="M10 83V34c0-13 11-24 24-24h49" stroke-width=".8" opacity=".7"/>
+      <path d="M18 60c0-22 12-38 34-42" stroke-width="1"/>
+      <path d="M22 22c10-3 19 2 19 11 0 6-5 9-9 7s-3-8 2-8" stroke-width="1.2"/>
+      <path d="M30 70c2-8 8-12 15-12M70 30c-8 2-12 8-12 15" stroke-width=".9"/>
+      <ellipse cx="46" cy="56" rx="5" ry="2.2" transform="rotate(-35 46 56)" stroke-width=".9"/>
+      <ellipse cx="56" cy="46" rx="5" ry="2.2" transform="rotate(-55 56 46)" stroke-width=".9"/>
+      <circle cx="18" cy="18" r="2.2" fill="currentColor" stroke="none"/>
+      <circle cx="78" cy="10" r="1.4" fill="currentColor" stroke="none"/>
+      <circle cx="10" cy="78" r="1.4" fill="currentColor" stroke="none"/>
+    </g>
+  </defs>
+</svg>
+<div class="fireflies" id="fireflies" aria-hidden="true"></div>
+
 <header class="hero">
-  <div class="eyebrow">Together with their families</div>
-  <h1 id="couple"></h1>
-   <div class="eyebrow" style="margin-bottom:14px">invite you to celebrate their marriage</div>
-  <div class="eyebrow" style="margin-bottom:14px">and request the pleasure of your company at their wedding reception</div>
-  <div class="date" id="heroDate"></div>
-  <div class="divider"></div>
-  <div class="eyebrow" id="heroVenue"></div>
+  <div class="invite">
+    <svg class="corner tl" viewBox="0 0 86 86" fill="none" stroke="currentColor" stroke-linecap="round"><use href="#flourish"/></svg>
+    <svg class="corner tr" viewBox="0 0 86 86" fill="none" stroke="currentColor" stroke-linecap="round"><use href="#flourish"/></svg>
+    <svg class="corner bl" viewBox="0 0 86 86" fill="none" stroke="currentColor" stroke-linecap="round"><use href="#flourish"/></svg>
+    <svg class="corner br" viewBox="0 0 86 86" fill="none" stroke="currentColor" stroke-linecap="round"><use href="#flourish"/></svg>
+    <p class="verse" id="verse"></p>
+    <div class="eyebrow">Together with their families</div>
+    <figure class="portrait"><span class="gem"></span><img src="couple.jpg" alt="Kelly and Matthys" width="1100" height="767"></figure>
+    <h1 id="couple"></h1>
+    <p class="invite-text">invite you to celebrate their marriage<br>and request the pleasure of your company at their wedding reception</p>
+    <svg class="ornament" viewBox="0 0 220 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true">
+      <path d="M2 12h78M140 12h78" stroke-width="1"/>
+      <path d="M80 12c8-8 16-8 20 0-4 8-12 8-20 0zM140 12c-8-8-16-8-20 0 4 8 12 8 20 0z" stroke-width="1"/>
+      <path d="M110 4l8 8-8 8-8-8z" stroke-width="1.2"/>
+      <circle cx="110" cy="12" r="1.8" fill="currentColor" stroke="none"/>
+    </svg>
+    <div class="date" id="heroDate"></div>
+    <div class="eyebrow venue-line" id="heroVenue"></div>
+  </div>
 </header>
 
 <main class="wrap">
@@ -144,7 +175,26 @@ const DEMO_INVITES = {
 
 // ---------- fill in wedding details ----------
 document.title = `${W.couple} — RSVP`;
-$('couple').textContent = W.couple;
+(function () {
+  const h = $('couple'); h.textContent = '';
+  W.couple.split('&').forEach((part, i) => {
+    if (i) { const a = document.createElement('span'); a.className = 'amp'; a.textContent = '&'; h.append(' ', a, ' '); }
+    h.append(part.trim());
+  });
+})();
+$('verse').textContent = W.verse || '';
+$('verse').classList.toggle('hidden', !W.verse);
+// fireflies
+(function () {
+  const box = $('fireflies'); if (!box) return;
+  const r = (a, b) => a + Math.random() * (b - a);
+  for (let i = 0; i < 26; i++) {
+    const f = document.createElement('span');
+    f.style.cssText = `left:${r(0,100)}%;top:${r(5,100)}%;--dur:${r(10,22)}s;--blink:${r(2,5)}s;--delay:${r(-20,0)}s;` +
+      `--dx1:${r(-60,60)}px;--dy1:${r(-60,20)}px;--dx2:${r(-60,60)}px;--dy2:${r(-90,-20)}px`;
+    box.appendChild(f);
+  }
+})();
 $('heroDate').textContent = W.dateDisplay;
 $('heroVenue').textContent = W.venueName;
 $('dWhen').textContent = W.dateDisplay;
