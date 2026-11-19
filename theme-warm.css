@@ -125,3 +125,83 @@ select option { background: #fffdf9; color: var(--ink); }
   .invite::before { width: 85%; }
   .hero .date { font-size: 19px; letter-spacing: .1em; }
 }
+
+/* =====================================================================
+   Editorial hero — no card: the photo melts into the background and the
+   names sit beside it (desktop) or beneath it (phone).
+   ===================================================================== */
+.hero { padding: 48px 16px 24px; }
+.invite {
+  max-width: 1120px; padding: 0; border: 0; border-radius: 0;
+  background: none; box-shadow: none; backdrop-filter: none; overflow: visible;
+  display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  column-gap: 48px; align-items: center; align-content: center;
+}
+.invite::before, .invite::after, .portrait .gem, .ornament { display: none; }
+.invite > :not(.portrait) { grid-column: 2; }
+
+.portrait {
+  grid-column: 1; grid-row: 1 / span 7; margin: 0; width: 100%; filter: none;
+}
+.portrait .pf, .portrait .pf-gap { padding: 0; background: none; clip-path: none; }
+.portrait img {
+  clip-path: none; aspect-ratio: auto; border-radius: 4px;
+  filter: saturate(.9) contrast(1.02) sepia(.18) brightness(1.02);
+  -webkit-mask-image:
+    linear-gradient(to right, #000 62%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 14%, #000 84%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, #000 62%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 14%, #000 84%, transparent 100%);
+  mask-composite: intersect;
+}
+
+.verse { font-size: 22px; margin: 0 0 18px; color: var(--gold); }
+.invite .eyebrow:not(.venue-line) { font-size: 13px; letter-spacing: .32em; color: var(--ink); }
+.hero h1 { font-size: clamp(64px, 8vw, 118px); margin: 34px 0 10px; }
+.hero h1 .amp { margin: 4px 0 0; }
+.invite-text { font-size: 18px; max-width: 360px; margin: 6px auto 22px; color: var(--muted); }
+.hero .date {
+  font-family: var(--display); font-size: 20px; letter-spacing: .28em; color: var(--ink);
+  padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  max-width: 420px; margin: 0 auto;
+}
+.hero .venue-line { margin-top: 14px; font-size: 12px; letter-spacing: .26em; color: var(--muted); }
+
+/* Photo on top at every screen size */
+@media all {
+  .hero { padding: 0 0 12px; }
+  .invite { display: flex; flex-direction: column; }
+  .portrait { order: -1; margin: 0 0 4px; }
+  .invite .eyebrow:not(.venue-line) { font-size: 11px; letter-spacing: .22em; }
+  .hero h1 { margin-top: 22px; }
+  .portrait img {
+    border-radius: 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+  }
+  .verse { margin: -6px 0 12px; }
+  .invite > :not(.portrait) { padding-left: 16px; padding-right: 16px; }
+  .hero h1 { font-size: clamp(62px, 19vw, 96px); }
+  .hero .date { font-size: 15px; letter-spacing: .12em; margin: 0 16px; }
+}
+
+/* Larger screens: centred column, photo fades out at the sides and bottom */
+@media (min-width: 821px) {
+  .hero { padding: 36px 16px 16px; }
+  .invite { max-width: 720px; margin: 0 auto; }
+  .portrait img {
+    border-radius: 6px;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 10%, #000 72%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 10%, #000 72%, transparent 100%);
+    mask-composite: intersect;
+  }
+  .invite .eyebrow:not(.venue-line) { font-size: 13px; letter-spacing: .32em; }
+  .hero h1 { font-size: clamp(72px, 9vw, 120px); margin-top: 26px; }
+  .hero .date { font-size: 20px; letter-spacing: .28em; margin: 0 auto; }
+}
+
+/* breathing room so "AND" never touches the script capitals */
+.hero h1 .amp { margin: 14px 0 26px; }

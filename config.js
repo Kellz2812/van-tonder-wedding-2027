@@ -1,6 +1,6 @@
 window.WEDDING = {
   // --- The couple & the day -------------------------------------------
-  couple:        "Kelly & Matthys",
+  couple:        "Matthys & Kelly",
   verse:         "Let's make it official!",
   date:          "2027-03-13",            // YYYY-MM-DD
   dateDisplay:   "Saturday, 13 March 2027",
