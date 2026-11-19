@@ -84,7 +84,7 @@ legend, .q { font-weight: 500; margin-bottom: 10px; display: block; padding: 0; 
 }
 .checks input { width: 18px; height: 18px; accent-color: var(--accent-dark); }
 
-input[type=text], input[type=number], input[type=email], textarea, select {
+input[type=text], input[type=number], input[type=email], input[type=tel], textarea, select {
   width: 100%; font: inherit; color: inherit; padding: 11px 12px;
   border: 1px solid var(--line); border-radius: 10px; background: #fff;
 }

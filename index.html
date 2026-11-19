@@ -68,38 +68,31 @@
 
   <!-- RSVP card: one of these states is shown -->
   <section class="card" id="rsvp">
-    <div id="stLoading" class="center"><p class="lead">Finding your invitation…</p></div>
-
-    <div id="stNoCode" class="hidden center">
-      <h2>RSVP</h2>
-      <p class="lead">Please use the personal link from your invitation to reply.</p>
-      <p class="hint">Can't find it? Contact <span class="contact"></span>.</p>
-    </div>
-
-    <div id="stNotFound" class="hidden center">
-      <h2>Hmm…</h2>
-      <p class="lead">We couldn't find that invitation. Please check the link, or contact <span class="contact"></span>.</p>
-    </div>
-
     <div id="stClosed" class="hidden center">
       <h2>RSVPs are closed</h2>
       <p class="lead">The RSVP deadline has passed. If something has changed, please contact <span class="contact"></span>.</p>
-      <div id="closedSummary"></div>
     </div>
 
     <div id="stThanks" class="hidden center thanks">
       <h2 id="thanksTitle">Thank you!</h2>
       <p class="big" id="thanksLine"></p>
       <p class="lead" id="thanksSub"></p>
-      <button class="btn ghost small" id="editBtn" type="button">Change my response</button>
+      <p class="hint">Need to change something? Just fill in the form again with the same phone number.</p>
+      <button class="btn ghost small" id="againBtn" type="button">Submit another RSVP</button>
     </div>
 
-    <form id="stForm" class="hidden" novalidate>
-      <h2>Dear <span id="household"></span></h2>
-      <p class="lead" id="seatsLine"></p>
-      <div id="prevBanner" class="banner hidden"></div>
+    <form id="stForm" novalidate>
+      <h2>RSVP</h2>
+      <p class="lead">Kindly reply by <span id="deadlineInline"></span>.</p>
 
-      <fieldset>
+      <div class="field"><label for="name">Your full name</label>
+        <input type="text" id="name" maxlength="120" autocomplete="name"></div>
+      <div class="field"><label for="phone">Your cellphone number</label>
+        <input type="tel" id="phone" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="e.g. 082 123 4567"></div>
+      <!-- spam trap: real people never see or fill this -->
+      <div style="position:absolute;left:-9999px" aria-hidden="true"><input type="text" id="website" tabindex="-1" autocomplete="off"></div>
+
+      <fieldset style="margin-top:18px">
         <legend>Will you be joining us?</legend>
         <div class="choice">
           <label><input type="radio" name="attending" value="yes"><span>Joyfully accept</span></label>
@@ -108,21 +101,16 @@
       </fieldset>
 
       <div id="yesBlock" class="hidden">
-        <fieldset id="namesSet">
-          <legend>Who will be attending? <span class="hint">(tick everyone coming)</span></legend>
-          <div class="checks" id="nameChecks"></div>
-        </fieldset>
-
-        <fieldset id="plusOneSet" class="hidden">
-          <legend>Bringing a plus-one?</legend>
-          <div class="checks"><label><input type="checkbox" id="plusOneChk"> Yes, I'll bring a guest</label></div>
-          <div class="field hidden" id="plusOneField">
-            <label for="plusOneName">Your guest's full name</label>
-            <input type="text" id="plusOneName" maxlength="120" autocomplete="off">
+        <fieldset>
+          <legend>How many adults, including you?</legend>
+          <select id="adults"></select>
+          <div class="field hidden" id="adultNamesField" style="margin-top:12px">
+            <label for="adultNames">Names of the other adults</label>
+            <input type="text" id="adultNames" maxlength="500" placeholder="e.g. Matthys van Tonder">
           </div>
         </fieldset>
 
-        <fieldset id="kidsSet" class="hidden">
+        <fieldset>
           <legend>Will you be bringing kids?</legend>
           <div class="choice">
             <label><input type="radio" name="kids" value="yes"><span>Yes</span></label>
@@ -168,12 +156,6 @@ const W = window.WEDDING;
 const DEMO = !W.supabaseUrl || !W.supabaseKey;
 const $ = id => document.getElementById(id);
 
-// ---------- demo data (used only when Supabase isn't configured) ----------
-const DEMO_INVITES = {
-  DEMO1: { code: 'DEMO1', household_name: 'Thabo & Lerato', guest_names: ['Thabo Mokoena', 'Lerato Mokoena'], plus_one_allowed: false, kids_allowed: true, rsvp: null },
-  DEMO2: { code: 'DEMO2', household_name: 'Sarah', guest_names: ['Sarah van der Merwe'], plus_one_allowed: true, kids_allowed: false, rsvp: null },
-};
-
 // ---------- fill in wedding details ----------
 document.title = `${W.couple} — RSVP`;
 (function () {
@@ -210,11 +192,11 @@ document.querySelectorAll('.contact').forEach(el => el.textContent = `${W.contac
 if (DEMO) $('demoTag').classList.remove('hidden');
 
 const closed = new Date() > new Date(W.rsvpDeadline + 'T23:59:59');
-let invite = null;
 let sb = null;
+$('deadlineInline').textContent = W.rsvpDeadlineDisplay;
 
 function show(id) {
-  ['stLoading','stNoCode','stNotFound','stClosed','stThanks','stForm'].forEach(s => $(s).classList.toggle('hidden', s !== id));
+  ['stClosed','stThanks','stForm'].forEach(s => $(s).classList.toggle('hidden', s !== id));
 }
 
 function loadSupabase() {
@@ -227,160 +209,86 @@ function loadSupabase() {
   });
 }
 
-async function api(fn, args) {
-  if (DEMO) {
-    await new Promise(r => setTimeout(r, 300));
-    if (fn === 'get_invite') return DEMO_INVITES[(args.p_code || '').toUpperCase()] || null;
-    const inv = DEMO_INVITES[args.p_code.toUpperCase()];
-    inv.rsvp = {
-      attending: args.p_attending, attending_names: args.p_attending_names, plus_one_name: args.p_plus_one_name,
-      bringing_kids: args.p_bringing_kids, kids_under_10: args.p_kids_under_10, kids_10_plus: args.p_kids_10_plus,
-      kids_names: args.p_kids_names, dietary: args.p_dietary, song_request: args.p_song_request,
-      message: args.p_message, updated_at: new Date().toISOString(),
-    };
-    return inv;
-  }
-  const { data, error } = await sb.rpc(fn, args);
+async function submitRsvp(args) {
+  if (DEMO) { await new Promise(r => setTimeout(r, 400)); return { updated: false }; }
+  if (!sb) sb = await loadSupabase();
+  const { data, error } = await sb.rpc('submit_public_rsvp', args);
   if (error) throw error;
   return data;
 }
 
 // ---------- form behaviour ----------
+for (let i = 1; i <= 10; i++) $('adults').add(new Option(i === 1 ? '1 (just me)' : String(i), i));
 const val = name => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
 
 function refreshForm() {
   const att = val('attending');
   $('yesBlock').classList.toggle('hidden', att !== 'yes');
   $('msgSet').classList.toggle('hidden', !att);
-  $('plusOneField').classList.toggle('hidden', !$('plusOneChk').checked);
+  $('adultNamesField').classList.toggle('hidden', $('adults').value === '1');
   $('kidsBlock').classList.toggle('hidden', val('kids') !== 'yes');
 }
-document.querySelectorAll('#stForm input').forEach(el => el.addEventListener('change', refreshForm));
-
-function renderForm() {
-  const r = invite.rsvp;
-  $('household').textContent = invite.household_name;
-  const seats = invite.guest_names.length;
-  $('seatsLine').textContent = invite.plus_one_allowed
-    ? `We'd love for you to celebrate with us — you're welcome to bring a guest.`
-    : `We have reserved ${seats} ${seats === 1 ? 'seat' : 'seats'} in your honour.`;
-
-  // name checkboxes
-  const box = $('nameChecks');
-  box.innerHTML = '';
-  invite.guest_names.forEach(n => {
-    const lab = document.createElement('label');
-    const cb = document.createElement('input');
-    cb.type = 'checkbox'; cb.value = n;
-    cb.checked = r ? (r.attending_names || []).includes(n) : true;
-    lab.append(cb, document.createTextNode(' ' + n));
-    box.appendChild(lab);
-  });
-  $('namesSet').classList.toggle('hidden', seats <= 1 && !r);
-  $('plusOneSet').classList.toggle('hidden', !invite.plus_one_allowed);
-  $('kidsSet').classList.toggle('hidden', !invite.kids_allowed);
-
-  if (r) {
-    document.querySelector(`input[name=attending][value=${r.attending ? 'yes' : 'no'}]`).checked = true;
-    $('plusOneChk').checked = !!r.plus_one_name;
-    $('plusOneName').value = r.plus_one_name || '';
-    if (invite.kids_allowed && r.attending) document.querySelector(`input[name=kids][value=${r.bringing_kids ? 'yes' : 'no'}]`).checked = true;
-    $('kidsUnder').value = r.kids_under_10 || 0;
-    $('kidsOver').value = r.kids_10_plus || 0;
-    $('kidsNames').value = r.kids_names || '';
-    $('dietary').value = r.dietary || '';
-    $('song').value = r.song_request || '';
-    $('message').value = r.message || '';
-    $('prevBanner').textContent = `You replied on ${new Date(r.updated_at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long' })}. You can update your response below.`;
-    $('prevBanner').classList.remove('hidden');
-  }
-  refreshForm();
-  show('stForm');
-}
-
-function summary(r) {
-  if (!r.attending) return { title: 'Thank you for letting us know', line: "We'll miss you!", sub: 'Thank you for your kind reply.' };
-  let people = (r.attending_names || []).length + (r.plus_one_name ? 1 : 0);
-  if (!invite.guest_names.length) people = 1;
-  const kids = (r.kids_under_10 || 0) + (r.kids_10_plus || 0);
-  let line = `${people} ${people === 1 ? 'adult' : 'adults'}`;
-  if (kids) line += ` and ${kids} ${kids === 1 ? 'child' : 'children'}`;
-  return { title: 'Thank you!', line: `We can't wait to celebrate with you.`, sub: `We've noted ${line}. See you on ${W.dateDisplay}!` };
-}
-
-function renderThanks() {
-  const s = summary(invite.rsvp);
-  $('thanksTitle').textContent = s.title;
-  $('thanksLine').textContent = s.line;
-  $('thanksSub').textContent = s.sub;
-  $('editBtn').classList.toggle('hidden', closed);
-  show('stThanks');
-}
-$('editBtn').onclick = renderForm;
+document.querySelectorAll('#stForm input, #stForm select').forEach(el => el.addEventListener('change', refreshForm));
 
 function showError(msg) { $('formError').textContent = msg; $('formError').classList.remove('hidden'); }
 
 $('stForm').addEventListener('submit', async e => {
   e.preventDefault();
   $('formError').classList.add('hidden');
+  if ($('website').value) return; // bot
+  const name = $('name').value.trim(), phone = $('phone').value.trim();
   const att = val('attending');
-  if (!att) return showError('Please let us know whether you can make it.');
-  const names = [...document.querySelectorAll('#nameChecks input:checked')].map(c => c.value);
-  const plusOne = invite.plus_one_allowed && $('plusOneChk').checked ? $('plusOneName').value.trim() : '';
-  const kids = invite.kids_allowed && val('kids') === 'yes';
+  const adults = parseInt($('adults').value, 10) || 1;
+  const kids = val('kids') === 'yes';
   const kU = parseInt($('kidsUnder').value, 10) || 0, kO = parseInt($('kidsOver').value, 10) || 0;
 
+  if (name.length < 2) return showError('Please enter your name.');
+  if (phone.replace(/\D/g, '').length < 9) return showError('Please enter your cellphone number.');
+  if (!att) return showError('Please let us know whether you can make it.');
   if (att === 'yes') {
-    if (invite.guest_names.length && !names.length) return showError('Please tick at least one person who will attend.');
-    if ($('plusOneChk').checked && !plusOne) return showError("Please add your guest's name.");
-    if (invite.kids_allowed && !val('kids')) return showError('Please let us know if you will be bringing kids.');
+    if (adults > 1 && !$('adultNames').value.trim()) return showError('Please add the names of the other adults.');
+    if (!val('kids')) return showError('Please let us know if you will be bringing kids.');
     if (kids && kU + kO === 0) return showError('Please enter how many kids are coming.');
     if (kU < 0 || kO < 0 || kU > 20 || kO > 20) return showError('Please check the number of kids.');
   }
 
   $('submitBtn').disabled = true; $('submitBtn').textContent = 'Sending…';
   try {
-    invite = await api('submit_rsvp', {
-      p_code: invite.code, p_attending: att === 'yes', p_attending_names: names,
-      p_plus_one_name: plusOne || null, p_bringing_kids: kids,
-      p_kids_under_10: kids ? kU : 0, p_kids_10_plus: kids ? kO : 0,
+    const res = await submitRsvp({
+      p_name: name, p_phone: phone, p_attending: att === 'yes',
+      p_adults: adults, p_adult_names: adults > 1 ? $('adultNames').value.trim() : null,
+      p_bringing_kids: kids, p_kids_under_10: kids ? kU : 0, p_kids_10_plus: kids ? kO : 0,
       p_kids_names: kids ? $('kidsNames').value.trim() : null,
-      p_dietary: att === 'yes' ? $('dietary').value.trim() : null,
-      p_song_request: att === 'yes' ? $('song').value.trim() : null,
-      p_message: $('message').value.trim(),
+      p_dietary: $('dietary').value.trim() || null, p_song_request: $('song').value.trim() || null,
+      p_message: $('message').value.trim() || null,
     });
-    renderThanks();
+    const first = name.split(' ')[0];
+    if (att === 'yes') {
+      const k = kids ? kU + kO : 0;
+      let line = `${adults} ${adults === 1 ? 'adult' : 'adults'}`;
+      if (k) line += ` and ${k} ${k === 1 ? 'child' : 'children'}`;
+      $('thanksTitle').textContent = `Thank you, ${first}!`;
+      $('thanksLine').textContent = "We can't wait to celebrate with you.";
+      $('thanksSub').textContent = `${res && res.updated ? "We've updated your RSVP" : "We've noted"}: ${line}. See you on ${W.dateDisplay}!`;
+    } else {
+      $('thanksTitle').textContent = `Thank you, ${first}`;
+      $('thanksLine').textContent = "We'll miss you!";
+      $('thanksSub').textContent = 'Thank you for letting us know.';
+    }
+    show('stThanks');
     $('rsvp').scrollIntoView({ behavior: 'smooth' });
   } catch (err) {
     console.error(err);
-    showError(`Sorry, something went wrong. Please try again, or contact ${W.contactName}.`);
+    showError(`Sorry, something went wrong. Please try again, or contact ${W.contactName} on ${W.contactPhone}.`);
   } finally {
     $('submitBtn').disabled = false; $('submitBtn').textContent = 'Send RSVP';
   }
 });
 
+$('againBtn').onclick = () => { $('stForm').reset(); refreshForm(); show('stForm'); };
+
 // ---------- start ----------
-(async () => {
-  const params = new URLSearchParams(location.search);
-  const code = (params.get('i') || params.get('code') || '').trim();
-  if (!code) return show('stNoCode');
-  try {
-    if (!DEMO) sb = await loadSupabase();
-    invite = await api('get_invite', { p_code: code });
-  } catch (err) { console.error(err); }
-  if (!invite) return show('stNotFound');
-  if (closed) {
-    if (invite.rsvp) {
-      const s = summary(invite.rsvp);
-      $('closedSummary').innerHTML = '';
-      const p = document.createElement('p'); p.className = 'hint';
-      p.textContent = `Your response on file: ${invite.rsvp.attending ? 'Attending — ' + s.sub : 'Not attending'}`;
-      $('closedSummary').appendChild(p);
-    }
-    return show('stClosed');
-  }
-  invite.rsvp ? renderThanks() : renderForm();
-})();
+if (closed) show('stClosed');
 </script>
 </body>
 </html>

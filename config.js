@@ -7,9 +7,9 @@ window.WEDDING = {
   ceremonyTime:  "16:00",
   receptionTime: "Reception from 16:00",
   timeLine:      "Reception from 16:00",
-  venueName:     "Mokopane, Limpopo",
-  venueAddress:  "Exact venue to be confirmed",
-  mapsUrl:       "https://maps.google.com/?q=Mokopane,Limpopo",
+  venueName:     "Siesta Manor Restaurant & Guesthouse",
+  venueAddress:  "Mokopane, Limpopo",
+  mapsUrl:       "https://www.google.com/maps/search/?api=1&query=Siesta+Manor+Guesthouse+Mokopane",
   dressCode:     "Smart casual",
   rsvpDeadline:  "2027-01-31",             // YYYY-MM-DD — form closes after this day
   rsvpDeadlineDisplay: "31 January 2027",

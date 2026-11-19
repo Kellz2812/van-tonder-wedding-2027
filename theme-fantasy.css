@@ -156,7 +156,7 @@ legend, .q { font-family: var(--serif); font-weight: 600; font-size: 19px; color
 .checks label { border-color: var(--line); background: rgba(255, 255, 255, .02); font-size: 18px; }
 .checks input { accent-color: var(--gold); }
 
-input[type=text], input[type=number], input[type=email], textarea, select {
+input[type=text], input[type=number], input[type=email], input[type=tel], textarea, select {
   background: rgba(8, 12, 9, .6); color: var(--ink); border-color: var(--line); font-size: 18px;
 }
 input::placeholder, textarea::placeholder { color: rgba(185, 171, 140, .55); }
