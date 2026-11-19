@@ -1,0 +1,127 @@
+/* =====================================================================
+   Warm blossom theme — soft browns & beiges, signature-script names,
+   a drawn blossom branch. Loaded AFTER theme-fantasy.css.
+   ===================================================================== */
+:root {
+  --bg: #e9dfd2;
+  --paper: rgba(248, 240, 229, .88);
+  --ink: #4a3a2e;            /* espresso */
+  --muted: #8b7766;
+  --line: rgba(140, 105, 75, .28);
+  --gold: #a5805e;           /* bronze (name kept so all lines/ornaments switch) */
+  --gold-light: #5a4334;     /* deep brown for names & headings */
+  --accent: #a5805e;
+  --accent-dark: #a5805e;
+  --danger: #a4493d;
+  --script: "Mrs Saint Delafield", "Pinyon Script", cursive;
+}
+
+html { background: var(--bg); }
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 10% 14%, rgba(255, 244, 228, .35) 0 40px, transparent 110px),
+    radial-gradient(circle at 22% 62%, rgba(255, 244, 228, .22) 0 60px, transparent 150px),
+    radial-gradient(circle at 88% 22%, rgba(255, 255, 255, .45) 0 70px, transparent 170px),
+    radial-gradient(circle at 80% 78%, rgba(255, 255, 255, .35) 0 50px, transparent 140px),
+    radial-gradient(circle at 6% 88%, rgba(255, 236, 210, .25) 0 30px, transparent 90px),
+    linear-gradient(115deg, #6e5848 0%, #9a8270 28%, #cdbdaa 58%, #ece3d7 85%, #f3ede4 100%);
+  background-attachment: fixed;
+}
+body::before { display: none; }         /* no tree line */
+.corner { display: none; }              /* no corner swirls */
+
+/* Sparkles become soft warm bokeh glints */
+.fireflies span {
+  width: 7px; height: 7px;
+  background: rgba(255, 246, 228, .95);
+  box-shadow: 0 0 10px 4px rgba(255, 240, 215, .55), 0 0 26px 10px rgba(255, 228, 190, .22);
+}
+
+/* ---------- Invitation card ---------- */
+.invite {
+  overflow: hidden;
+  padding-top: 118px;
+  background: linear-gradient(180deg, rgba(250, 243, 233, .92), rgba(242, 232, 218, .9));
+  border-color: rgba(165, 128, 94, .35);
+  box-shadow:
+    inset 0 0 0 6px rgba(250, 243, 233, .9),
+    inset 0 0 0 7px rgba(165, 128, 94, .32),
+    0 40px 80px -40px rgba(60, 40, 25, .6);
+  backdrop-filter: blur(6px);
+}
+/* Blossom branch drawn across the top-left, and a small sprig bottom-right */
+.invite::before, .invite::after {
+  content: ""; position: absolute; pointer-events: none; z-index: 0;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 150'><g fill='none' stroke-linecap='round'><path d='M-10 30C40 26 85 48 140 44S230 22 290 34' stroke='%236b4a35' stroke-width='4.5'/><path d='M-10 30C40 26 85 48 140 44S230 22 290 34' stroke='%238a6248' stroke-width='1.5' opacity='.6'/><path d='M118 46c14 14 28 26 46 32' stroke='%236b4a35' stroke-width='2.4'/><path d='M210 32c6-10 16-16 28-18' stroke='%236b4a35' stroke-width='2'/></g><g fill='%23859467'><ellipse cx='60' cy='26' rx='13' ry='5' transform='rotate(-30 60 26)'/><ellipse cx='196' cy='52' rx='14' ry='5.5' transform='rotate(25 196 52)'/><ellipse cx='150' cy='70' rx='11' ry='4.5' transform='rotate(40 150 70)'/></g><g id='b'><g fill='%23fffaf4' stroke='%23e5d3c2' stroke-width='.8'><ellipse cx='0' cy='-9' rx='6.5' ry='9'/><ellipse cx='0' cy='-9' rx='6.5' ry='9' transform='rotate(72)'/><ellipse cx='0' cy='-9' rx='6.5' ry='9' transform='rotate(144)'/><ellipse cx='0' cy='-9' rx='6.5' ry='9' transform='rotate(216)'/><ellipse cx='0' cy='-9' rx='6.5' ry='9' transform='rotate(288)'/></g><circle r='3.4' fill='%23d9998b'/><g fill='%23a5805e'><circle cx='3' cy='-4' r='1'/><circle cx='-4' cy='-2' r='1'/><circle cx='1' cy='4' r='1'/></g></g><use href='%23b' x='100' y='38'/><use href='%23b' x='172' y='40' transform='rotate(20 172 40)'/><use href='%23b' x='168' y='80' transform='rotate(-15 168 80)'/><use href='%23b' x='252' y='26'/><g fill='%23e9b9ad'><ellipse cx='240' cy='14' rx='3.5' ry='5' transform='rotate(30 240 14)'/><ellipse cx='30' cy='22' rx='3' ry='4.5' transform='rotate(-20 30 22)'/></g></svg>") no-repeat center / contain;
+}
+.invite::before { top: 6px; left: -14px; width: 70%; max-width: 360px; aspect-ratio: 2 / 1; }
+.invite::after  { bottom: 2px; right: -20px; width: 38%; max-width: 200px; aspect-ratio: 2 / 1; transform: scale(-1, -1); opacity: .9; }
+.invite > * { position: relative; z-index: 1; }
+
+.verse { color: var(--gold); font-size: 24px; }
+.eyebrow { color: var(--muted); }
+.hero h1 {
+  color: var(--gold-light); text-shadow: none; white-space: normal;
+  font-size: clamp(58px, 15vw, 96px); line-height: .95; margin: 14px 0 6px;
+}
+.hero h1 .amp {
+  display: block; font-family: var(--display); font-size: 14px; letter-spacing: .3em;
+  color: var(--gold); margin: 10px 0 2px; padding: 0;
+}
+.hero h1 .amp { font-size: 0; }
+.hero h1 .amp::after { content: "and"; font-size: 15px; text-transform: uppercase; }
+.invite-text { color: var(--ink); }
+.hero .date { color: var(--ink); letter-spacing: .22em; }
+
+.portrait { filter: drop-shadow(0 14px 24px rgba(60, 40, 25, .25)); }
+.portrait .pf-gap, .portrait .gem { background: #fbf6ee; }
+.portrait img { filter: saturate(.92) contrast(1.02) sepia(.14); }
+
+/* ---------- Details ---------- */
+.detail {
+  background: var(--paper);
+  box-shadow: inset 0 0 0 4px rgba(255, 251, 245, .85), inset 0 0 0 5px rgba(165, 128, 94, .16), 0 12px 30px -22px rgba(60, 40, 25, .6);
+}
+.detail .label { color: var(--gold); }
+.detail .value { color: var(--ink); }
+.note { color: var(--gold-light); background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 14px 18px; }
+footer { color: var(--ink); }
+
+/* ---------- RSVP card ---------- */
+.card {
+  background: linear-gradient(180deg, rgba(250, 243, 233, .93), rgba(242, 232, 218, .92));
+  box-shadow: inset 0 0 0 6px rgba(250, 243, 233, .9), inset 0 0 0 7px rgba(165, 128, 94, .3), 0 30px 60px -35px rgba(60, 40, 25, .6);
+  backdrop-filter: blur(6px);
+}
+.card h2 { color: var(--gold-light); }
+legend, .q { color: var(--ink); }
+
+.choice label { background: #fffcf7; color: var(--ink); }
+.choice input:checked + span { color: var(--gold-light); }
+.choice label:has(input:checked) { background: rgba(165, 128, 94, .1); border-color: var(--gold); box-shadow: 0 0 0 1px rgba(165, 128, 94, .25); }
+.checks label { background: #fffcf7; }
+
+input[type=text], input[type=number], input[type=email], input[type=tel], textarea, select {
+  background: #fffdf9; color: var(--ink); border-color: rgba(140, 105, 75, .28);
+}
+input::placeholder, textarea::placeholder { color: rgba(139, 119, 102, .6); }
+input:focus, textarea:focus, select:focus { outline: 2px solid rgba(165, 128, 94, .35); border-color: var(--gold); }
+select option { background: #fffdf9; color: var(--ink); }
+
+.btn {
+  background: linear-gradient(180deg, #8c6a50, #6b4f3b); color: #fbf5ec;
+  box-shadow: 0 10px 24px -12px rgba(60, 40, 25, .7);
+}
+.btn:hover { background: linear-gradient(180deg, #997559, #765844); }
+.btn.ghost { background: transparent; color: var(--gold-light); border-color: var(--gold); }
+.banner { background: rgba(165, 128, 94, .08); color: var(--gold-light); }
+.thanks .big { color: var(--gold-light); }
+.error { color: var(--danger); }
+.demo-tag { background: var(--ink); color: #fff; }
+
+@media (max-width: 480px) {
+  .invite { padding-top: 96px; }
+  .invite::before { width: 85%; }
+  .hero .date { font-size: 19px; letter-spacing: .1em; }
+}
