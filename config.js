@@ -7,6 +7,8 @@ window.WEDDING = {
   ceremonyTime:  "16:00",
   receptionTime: "Reception from 16:00",
   timeLine:      "Reception from 16:00",
+  timeShort:     "at 4 PM",
+  extras:        ["Cash Bar", "Dress Code: Smart Casual"],   // script lines under the venue
   venueName:     "Siesta Manor Restaurant & Guesthouse",
   venueAddress:  "Mokopane, Limpopo",
   mapsUrl:       "https://www.google.com/maps/search/?api=1&query=Siesta+Manor+Guesthouse+Mokopane",
